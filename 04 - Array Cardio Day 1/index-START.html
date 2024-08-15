@@ -75,119 +75,99 @@
       // Array.prototype.filter()
       // 1. Filter the list of inventors for those who were born in the 1500's
 
-      function check(inventor) {
-        if (inventor.year > 1499 && inventor.year < 1600) {
-          return inventor;
-        }
-      }
-
-      let inventorsFrom1500s = inventors.filter(check);
-      console.log(inventorsFrom1500s);
+      let inventorsFrom1500s = inventors.filter(inventor => inventor.year > 1499 && inventor.year < 1600);
+      console.table(inventorsFrom1500s);
 
       // Array.prototype.map()
       // 2. Give us an array of the inventors first and last names
 
-      function onlyNames(inventor) {
-        let name = inventor.first + " " + inventor.last;
-        return name;
-      }
-
-      let inventorsNames = inventors.map(onlyNames);
+      let inventorsNames = inventors.map(inventor => `${inventor.first} ${inventor.last}`);
       console.log(inventorsNames);
 
       // Array.prototype.sort()
       // 3. Sort the inventors by birthdate, oldest to youngest
 
-      let inventorsSorted = inventors.sort(
-        (inventor1, inventor2) => inventor1.year - inventor2.year
-      );
-      console.log(inventorsSorted);
+      // According to MDN, here the difference between years will return either negative or positive value, which respectively pushes array lower or higher in the order
+      // let inventorsSorted = inventors.sort(
+      //     (inventor1, inventor2) => inventor1.year - inventor2.year
+      // );
+      
+      // Option 2, compare values of array element 1 (a) and 2 (b): if statement, ends with "?" "a.year < b.year"; return value after "?" - "1"; and else statement after ":" - "-1" 
+      let inventorsSorted = inventors.sort((a, b) => a.year < b.year ? 1 : -1)
+      console.table(inventorsSorted);
 
       // Array.prototype.reduce()
       // 4. How many years did all the inventors live all together?
-      let yearsLived = inventors.map(
-        (inventor) => inventor.passed - inventor.year
-      );
+      
+      //# My way
+      // let yearsLived = inventors.map(
+      //   (inventor) => inventor.passed - inventor.year
+      // );
+      // let totalYearsLived = yearsLived.reduce(
+      //   (total, currentValue) => total + currentValue
+      // );
 
-      let totalYearsLived = yearsLived.reduce(
-        (total, currentValue) => total + currentValue
-      );
+      //# Old way how people use to do before reduce method
+      // let totalYearsLived = 0;
+      // for (let i = 0; i < inventors.length; i++) {
+      //   totalYearsLived += (inventors[i].passed - inventors[i].year)
+      // }
+
+      //# Currently how it's done with "reduce" method. "0" as last argument corresponds to "let totalYearsLived = 0;"
+      // "reduce" essentially aka reduce amount of elements in array and use values of those elements for some operations between elements of used array to create a new array
+      let totalYearsLived = inventors.reduce((total, inventor) => {
+        return total + (inventor.passed - inventor.year);
+      }, 0)
+
       console.log(totalYearsLived);
 
       // 5. Sort the inventors by years lived
-      function addYears(inventor) {
-        let yearsLived = inventor.passed - inventor.year;
-        inventor.lived = yearsLived;
-        return inventor;
-      }
 
-      const inventorsCopy = JSON.parse(JSON.stringify(inventors));
-      let inventorsWirhYearsLived = inventorsCopy
-        .map(addYears)
-        .sort((inventor1, inventor2) => inventor1.lived - inventor2.lived);
+      //// My example, I went some extra mile and create a new array that will include years lived by each inventor and then sorted this array based on year lived values
+      // function addYears(inventor) {
+      //   let yearsLived = inventor.passed - inventor.year;
+      //   inventor.lived = yearsLived;
+      //   return inventor;
+      // }
 
-      console.log(inventorsWirhYearsLived);
+      // const inventorsCopy = JSON.parse(JSON.stringify(inventors));
+      // let inventorsWirhYearsLived = inventorsCopy
+      //   .map(addYears)
+      //   .sort((inventor1, inventor2) => inventor1.lived - inventor2.lived);
+
+      //// Current example from the video
+      const inventorsWirhYearsLived = inventors.sort((a,b) => {
+        const lastGuy = a.passed - a.year;
+        const firstGuy = b.passed - b.year;
+        return lastGuy > firstGuy ? -1 : 1;
+      })
+
+      console.table(inventorsWirhYearsLived);
 
       // 6. create a list of Boulevards in Paris that contain 'de' anywhere in the name
       // https://en.wikipedia.org/wiki/Category:Boulevards_in_Paris
-      const boulevards = [
-        "Boulevards of Paris",
-        "City walls of Paris",
-        "Thiers wall",
-        "Wall of Charles V",
-        "Wall of Philip II Augustus",
-        "City gates of Paris",
-        "Haussmann's renovation of Paris",
-        "Boulevards of the Marshals",
-        "Boulevard Auguste-Blanqui",
-        "Boulevard Barbès",
-        "Boulevard Beaumarchais",
-        "Boulevard de l'Amiral-Bruix",
-        "Boulevard Mortier",
-        "Boulevard Poniatowski",
-        "Boulevard Soult",
-        "Boulevard des Capucines",
-        "Boulevard de la Chapelle",
-        "Boulevard de Clichy",
-        "Boulevard du Crime",
-        "Boulevard du Général-d'Armée-Jean-Simon",
-        "Boulevard Haussmann",
-        "Boulevard de l'Hôpital",
-        "Boulevard des Italiens",
-        "Boulevard Lefebvre",
-        "Boulevard de la Madeleine",
-        "Boulevard de Magenta",
-        "Boulevard Malesherbes",
-        "Boulevard Marguerite-de-Rochechouart",
-        "Boulevard Montmartre",
-        "Boulevard du Montparnasse",
-        "Boulevard Raspail",
-        "Boulevard Richard-Lenoir",
-        "Boulevard Saint-Germain",
-        "Boulevard Saint-Michel",
-        "Boulevard de Sébastopol",
-        "Boulevard de Strasbourg",
-        "Boulevard du Temple",
-        "Boulevard Voltaire",
-        "Boulevard de la Zone",
-      ];
 
-      function checkDE (array) {
-        if (array.includes(" de ")) {return true}
-        if (array.includes("-de-")) {return true}
-        return false;
-      }
-      let filteredBoulevards = boulevards.filter(checkDE);
-      console.log(filteredBoulevards);
+      // const div = document.querySelector(".mw-category");
+      // const links = Array.from(div.querySelectorAll('a'));
+      // const filteredBoulevards = links
+      // .map(link => link.textContent)
+      // .filter(boulevard => boulevard.includes("de"));
+      // console.log(filteredBoulevards);
 
       // 7. sort Exercise
       // Sort the people alphabetically by last name
-      // function (sortPeople) {
-      //   // reprocess all names from strings into arrays -> let peopleArrays = people.map((array) => array.split(", "));
-      //   // create a loop that will take each individual array within array and turn it into obj with last and first name, array[0] is last name, array[1] is first name. first try to turn one array into obj and then think how to make a loop out of it - hint use peopleArrays.length to figure out how much iterations you need in the loop
-      //   // sort it by last name, check sort algorithm in MDN docs for sort
-      // }
-      let sortedPeople = people.map((array) => array.split(", "));
+
+      // We're doing the following
+      // 1. taking 2 elements of an array and comparing in order to sort by "aLast > bLast ? 1 : -1;"
+      // 2. in order to compare array elements, which are strings now, we need to decostract them
+      // so, for each element that we're taking, we split string into an array with "Last" name and "First" name
+      // 3. as we're iterating through pairs of original array elements, we're sorting them and returning into new array without changing initial structured as we don't return processed array element but initial string after comparison
+      
+      const sortedPeople = people.sort((lastOne, nextOne) => {
+        const [aLast, aFirst] = lastOne.split(', ');
+        const [bLast, bFirst] = nextOne.split(', ');
+        return aLast > bLast ? 1 : -1;
+      })
       console.log(sortedPeople);
 
       // 8. Reduce Exercise
@@ -208,6 +188,16 @@
         "car",
         "truck",
       ];
+
+      transportation = data.reduce(function(obj, item) { 
+        // "!obj[item]" - return "true" is such object key is absent, a "!" operator in general tries to convert operand to boolean, if it's not possible it will return "true", otherwsie, it will turn "true" into "false" and vice versa
+        if (!obj[item]) {
+          obj[item] = 0;
+        }
+        obj[item]++;
+        return obj;
+      }, {})
+      console.log(transportation);
     </script>
   </body>
 </html>
